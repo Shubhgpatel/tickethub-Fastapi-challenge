@@ -2,13 +2,13 @@ from datetime import UTC, datetime
 from bson import ObjectId
 from pymongo import ReturnDocument
 from pymongo.asynchronous.database import AsyncDatabase
+from app.repositories.common import to_out
 
-
-def _out(doc: dict | None) -> dict | None:
-    if doc is None:
-        return None
-    doc["id"] = str(doc.pop("_id"))
-    return doc
+# def to_out(doc: dict | None) -> dict | None:
+#     if doc is None:
+#         return None
+#     doc["id"] = str(doc.pop("_id"))
+#     return doc
 
 
 class UserRepository:
@@ -19,15 +19,15 @@ class UserRepository:
         now = datetime.now(UTC)
         doc = {**data, "is_active": True, "created_at": now, "updated_at": now}
         await self.col.insert_one(doc)  # adds _id to doc in place
-        return _out(doc)
+        return to_out(doc)
 
     async def get(self, user_id: str) -> dict | None:
-        return _out(await self.col.find_one({"_id": ObjectId(user_id)}))
+        return to_out(await self.col.find_one({"_id": ObjectId(user_id)}))
 
     async def list_page(self, limit: int, after: str | None) -> list[dict]:
         query = {"_id": {"$gt": ObjectId(after)}} if after else {}
         cursor = self.col.find(query).sort("_id", 1).limit(limit)
-        return [_out(d) async for d in cursor]
+        return [to_out(d) async for d in cursor]
 
     async def update(self, user_id: str, changes: dict) -> dict | None:
         changes = {**changes, "updated_at": datetime.now(UTC)}
@@ -35,4 +35,4 @@ class UserRepository:
             {"_id": ObjectId(user_id)}, {"$set": changes},
             return_document=ReturnDocument.AFTER,
         )
-        return _out(doc)
+        return to_out(doc)

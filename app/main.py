@@ -6,7 +6,7 @@ from app.core.errors import register_error_handlers
 from app.core.middleware import RequestIDMiddleware
 from app.db import client as db
 from app.db.indexes import create_indexes
-from app.routers import users
+from app.routers import users,bookings,events
 
 
 @asynccontextmanager
@@ -21,6 +21,9 @@ app = FastAPI(title="TicketHub", lifespan=lifespan)
 app.add_middleware(RequestIDMiddleware)
 register_error_handlers(app)
 app.include_router(users.router)
+app.include_router(bookings.router)
+app.include_router(events.router)
+
 
 
 @app.get("/health")

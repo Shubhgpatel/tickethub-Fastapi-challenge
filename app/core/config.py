@@ -7,5 +7,6 @@ class Settings(BaseSettings):
     mongo_db: str = "tickethub"
     redis_url: str
     cors_origins: str = "http://localhost:3000"
+    hold_minutes: int = 15
 
 settings = Settings()
